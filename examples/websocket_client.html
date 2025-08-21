@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow WebSocket Demo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .connecting { background-color: #ffeaa7; color: #856404; }
+        
+        #messages {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f8f9fa;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        
+        .message {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #007bff;
+            background-color: white;
+        }
+        
+        .message.error {
+            border-left-color: #dc3545;
+            background-color: #f8d7da;
+        }
+        
+        .message.success {
+            border-left-color: #28a745;
+            background-color: #d4edda;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+        }
+        
+        .btn-success {
+            background-color: #28a745;
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .info-panel {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 TaskFlow WebSocket Demo</h1>
+        
+        <div id="status" class="status disconnected">Disconnected</div>
+        
+        <div class="info-panel">
+            <h3>📋 Instructions:</h3>
+            <ol>
+                <li>First, authenticate with the TaskFlow API to get an access token</li>
+                <li>Enter your JWT token below and click "Connect"</li>
+                <li>Once connected, you'll receive real-time updates for your tenant</li>
+                <li>Try creating/updating tasks in another browser tab to see live updates!</li>
+            </ol>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="tokenInput" placeholder="Enter your JWT access token here..." />
+            <button id="connectBtn" class="btn-primary" onclick="connect()">Connect</button>
+            <button id="disconnectBtn" class="btn-danger" onclick="disconnect()" disabled>Disconnect</button>
+        </div>
+        
+        <div class="controls">
+            <input type="text" id="messageInput" placeholder="Type a message to broadcast..." disabled />
+            <button id="sendBtn" class="btn-success" onclick="sendMessage()" disabled>Send Message</button>
+            <button id="pingBtn" class="btn-secondary" onclick="ping()" disabled>Ping</button>
+        </div>
+        
+        <div>
+            <button class="btn-secondary" onclick="clearMessages()">Clear Messages</button>
+            <button class="btn-secondary" onclick="getOnlineUsers()" disabled id="onlineBtn">Get Online Users</button>
+        </div>
+        
+        <h3>📨 Real-time Messages:</h3>
+        <div id="messages"></div>
+        
+        <div class="info-panel">
+            <h3>🔗 API Endpoints:</h3>
+            <ul>
+                <li><strong>WebSocket:</strong> ws://localhost:8080/api/v1/ws</li>
+                <li><strong>Login:</strong> POST http://localhost:8080/api/v1/auth/login</li>
+                <li><strong>Register:</strong> POST http://localhost:8080/api/v1/auth/register</li>
+                <li><strong>Tasks:</strong> GET/POST http://localhost:8080/api/v1/tasks</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        let socket = null;
+        let token = null;
+        
+        function updateStatus(status, className) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = status;
+            statusEl.className = `status ${className}`;
+        }
+        
+        function addMessage(text, type = 'info') {
+            const messagesEl = document.getElementById('messages');
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${text}`;
+            messagesEl.appendChild(messageEl);
+            messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+        
+        function connect() {
+            token = document.getElementById('tokenInput').value.trim();
+            if (!token) {
+                addMessage('❌ Please enter a JWT token', 'error');
+                return;
+            }
+            
+            updateStatus('Connecting...', 'connecting');
+            
+            // Create WebSocket connection with authorization
+            const wsUrl = `ws://localhost:8080/api/v1/ws`;
+            socket = new WebSocket(wsUrl);
+            
+            // Send authorization after connection
+            socket.onopen = function(event) {
+                updateStatus('Connected ✅', 'connected');
+                addMessage('🎉 Connected to TaskFlow WebSocket!', 'success');
+                
+                // Enable controls
+                document.getElementById('messageInput').disabled = false;
+                document.getElementById('sendBtn').disabled = false;
+                document.getElementById('pingBtn').disabled = false;
+                document.getElementById('onlineBtn').disabled = false;
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('disconnectBtn').disabled = false;
+                
+                // Send a ping to verify connection
+                ping();
+            };
+            
+            socket.onmessage = function(event) {
+                try {
+                    const message = JSON.parse(event.data);
+                    handleMessage(message);
+                } catch (e) {
+                    addMessage(`📨 Raw message: ${event.data}`);
+                }
+            };
+            
+            socket.onclose = function(event) {
+                updateStatus('Disconnected', 'disconnected');
+                addMessage('❌ Connection closed', 'error');
+                
+                // Disable controls
+                document.getElementById('messageInput').disabled = true;
+                document.getElementById('sendBtn').disabled = true;
+                document.getElementById('pingBtn').disabled = true;
+                document.getElementById('onlineBtn').disabled = true;
+                document.getElementById('connectBtn').disabled = false;
+                document.getElementById('disconnectBtn').disabled = true;
+            };
+            
+            socket.onerror = function(error) {
+                addMessage(`❌ WebSocket error: ${error}`, 'error');
+                updateStatus('Error', 'disconnected');
+            };
+        }
+        
+        function disconnect() {
+            if (socket) {
+                socket.close();
+                socket = null;
+            }
+        }
+        
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const text = messageInput.value.trim();
+            
+            if (!text || !socket) return;
+            
+            const message = {
+                type: 'custom_message',
+                data: {
+                    text: text,
+                    timestamp: new Date().toISOString()
+                }
+            };
+            
+            socket.send(JSON.stringify(message));
+            addMessage(`📤 Sent: ${text}`, 'success');
+            messageInput.value = '';
+        }
+        
+        function ping() {
+            if (!socket) return;
+            
+            const pingMessage = {
+                type: 'ping',
+                timestamp: Date.now()
+            };
+            
+            socket.send(JSON.stringify(pingMessage));
+            addMessage('🏓 Ping sent', 'success');
+        }
+        
+        function handleMessage(message) {
+            const { type, data, user_id, timestamp } = message;
+            const timeStr = new Date(timestamp * 1000).toLocaleTimeString();
+            
+            switch(type) {
+                case 'pong':
+                    addMessage('🏓 Pong received', 'success');
+                    break;
+                    
+                case 'task_update':
+                    const action = data?.action || 'updated';
+                    const taskTitle = data?.task?.title || 'Unknown Task';
+                    addMessage(`📝 Task ${action}: "${taskTitle}"`, 'success');
+                    break;
+                    
+                case 'task_create':
+                    const newTaskTitle = data?.task?.title || 'New Task';
+                    addMessage(`➕ New task created: "${newTaskTitle}"`, 'success');
+                    break;
+                    
+                case 'notification':
+                    const notifTitle = data?.notification?.title || 'New Notification';
+                    addMessage(`🔔 ${notifTitle}`, 'success');
+                    break;
+                    
+                case 'user_joined':
+                    const joinedUser = data?.user_name || 'Someone';
+                    addMessage(`👋 ${joinedUser} joined the workspace`, 'success');
+                    break;
+                    
+                case 'user_left':
+                    const leftUser = data?.user_name || 'Someone';
+                    addMessage(`👋 ${leftUser} left the workspace`);
+                    break;
+                    
+                case 'typing':
+                    const typingUser = data?.user_name || 'Someone';
+                    addMessage(`✏️ ${typingUser} is typing...`);
+                    break;
+                    
+                case 'error':
+                    addMessage(`❌ Error: ${data?.error || 'Unknown error'}`, 'error');
+                    break;
+                    
+                default:
+                    addMessage(`📨 ${type}: ${JSON.stringify(data || {})}`);
+            }
+        }
+        
+        function clearMessages() {
+            document.getElementById('messages').innerHTML = '';
+        }
+        
+        function getOnlineUsers() {
+            if (!token) {
+                addMessage('❌ No token available', 'error');
+                return;
+            }
+            
+            fetch('http://localhost:8080/api/v1/ws/online-users', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.data) {
+                    const users = data.data.online_users || [];
+                    const count = data.data.user_count || 0;
+                    addMessage(`👥 ${count} users online: ${users.length > 0 ? users.join(', ') : 'None'}`, 'success');
+                } else {
+                    addMessage(`❌ Failed to get online users: ${data.error || 'Unknown error'}`, 'error');
+                }
+            })
+            .catch(error => {
+                addMessage(`❌ Error fetching online users: ${error.message}`, 'error');
+            });
+        }
+        
+        // Allow sending messages with Enter key
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Allow connecting with Enter key
+        document.getElementById('tokenInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                connect();
+            }
+        });
+        
+        // Initialize
+        addMessage('🚀 Welcome to TaskFlow WebSocket Demo!');
+        addMessage('💡 Tip: Get a JWT token by logging in to the API first');
+    </script>
+</body>
+</html>
