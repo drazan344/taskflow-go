@@ -297,22 +297,9 @@ func setupRoutes(
 func runMigrations(db *database.DB) error {
 	models := []interface{}{
 		&models.Tenant{},
-		&models.TenantInvitation{},
-		&models.TenantUsage{},
 		&models.User{},
 		&models.UserSession{},
-		&models.UserPasswordReset{},
-		&models.UserEmailVerification{},
-		&models.Project{},
-		&models.Tag{},
 		&models.Task{},
-		&models.TaskComment{},
-		&models.TaskAttachment{},
-		&models.TaskActivity{},
-		&models.Notification{},
-		&models.NotificationPreference{},
-		&models.NotificationTemplate{},
-		&models.NotificationQueue{},
 	}
 
 	return db.Migrate(models...)

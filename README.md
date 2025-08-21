@@ -68,7 +68,7 @@ taskflow-go/
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/kayal/taskflow-go.git
+git clone https://github.com/drazan344/taskflow-go.git
 cd taskflow-go
 ```
 

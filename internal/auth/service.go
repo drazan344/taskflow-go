@@ -215,11 +215,7 @@ func (s *Service) Register(req *RegisterRequest) (*LoginResponse, error) {
 		return nil, errors.InternalServer("Failed to create user", err)
 	}
 
-	// Create default notification preferences
-	if err := s.createDefaultNotificationPreferences(tx, user.ID, user.TenantID); err != nil {
-		tx.Rollback()
-		return nil, errors.InternalServer("Failed to create notification preferences", err)
-	}
+	// TODO: Create default notification preferences when notification model is available
 
 	// Commit transaction
 	if err := tx.Commit().Error; err != nil {
@@ -420,13 +416,26 @@ func (s *Service) ValidateSession(sessionID uuid.UUID) (*models.User, error) {
 
 // createUserSession creates a new user session
 func (s *Service) createUserSession(user *models.User, ipAddress, userAgent string) (*models.UserSession, error) {
+	// Generate temporary tokens to ensure uniqueness
+	tempToken, err := generateSecureToken(16)
+	if err != nil {
+		return nil, err
+	}
+	
+	tempRefreshToken, err := generateSecureToken(16)
+	if err != nil {
+		return nil, err
+	}
+
 	session := &models.UserSession{
-		UserID:    user.ID,
-		TenantID:  user.TenantID,
-		ExpiresAt: time.Now().Add(s.config.JWT.RefreshExpiry),
-		IPAddress: ipAddress,
-		UserAgent: userAgent,
-		IsActive:  true,
+		UserID:       user.ID,
+		TenantID:     user.TenantID,
+		Token:        "temp_" + tempToken,
+		RefreshToken: "temp_" + tempRefreshToken,
+		ExpiresAt:    time.Now().Add(s.config.JWT.RefreshExpiry),
+		IPAddress:    ipAddress,
+		UserAgent:    userAgent,
+		IsActive:     true,
 	}
 
 	if err := s.db.Create(session).Error; err != nil {
@@ -437,6 +446,8 @@ func (s *Service) createUserSession(user *models.User, ipAddress, userAgent stri
 }
 
 // createDefaultNotificationPreferences creates default notification preferences for a user
+// TODO: Re-enable when notification models are included in migration
+/*
 func (s *Service) createDefaultNotificationPreferences(tx *gorm.DB, userID, tenantID uuid.UUID) error {
 	preferences := []models.NotificationPreference{
 		{TenantModel: models.TenantModel{TenantID: tenantID}, UserID: userID, Type: models.NotificationTypeTaskAssigned, InApp: true, Email: true, Push: true, WebSocket: true},
@@ -453,6 +464,7 @@ func (s *Service) createDefaultNotificationPreferences(tx *gorm.DB, userID, tena
 
 	return nil
 }
+*/
 
 // generateSecureToken generates a cryptographically secure random token
 func generateSecureToken(length int) (string, error) {

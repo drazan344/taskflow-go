@@ -225,6 +225,12 @@ func TenantMiddleware(db *gorm.DB, log *logger.Logger) gin.HandlerFunc {
 			host = host[:colonIndex]
 		}
 
+		// Skip tenant lookup for localhost in development
+		if host == "localhost" || host == "127.0.0.1" {
+			c.Next()
+			return
+		}
+
 		// Try to find tenant by domain or extract from subdomain
 		var tenant models.Tenant
 		

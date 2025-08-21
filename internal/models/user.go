@@ -43,7 +43,7 @@ type User struct {
 	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
 	
 	// User preferences
-	Preferences UserPreferences `json:"preferences" gorm:"type:jsonb"`
+	Preferences UserPreferences `json:"preferences" gorm:"type:jsonb;serializer:json"`
 	
 	// Relationships
 	Tenant          Tenant            `json:"tenant" gorm:"foreignKey:TenantID"`
@@ -71,8 +71,8 @@ type UserSession struct {
 	BaseModel
 	UserID      uuid.UUID `json:"user_id" gorm:"type:uuid;not null;index"`
 	TenantID    uuid.UUID `json:"tenant_id" gorm:"type:uuid;not null;index"`
-	Token       string    `json:"token" gorm:"unique;not null;size:500"`
-	RefreshToken string   `json:"refresh_token" gorm:"unique;not null;size:500"`
+	Token       string    `json:"token" gorm:"unique;size:1000"`
+	RefreshToken string   `json:"refresh_token" gorm:"unique;size:1000"`
 	ExpiresAt   time.Time `json:"expires_at" gorm:"not null"`
 	IPAddress   string    `json:"ip_address" gorm:"size:45"`
 	UserAgent   string    `json:"user_agent" gorm:"size:500"`

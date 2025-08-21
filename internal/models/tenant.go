@@ -36,7 +36,7 @@ type Tenant struct {
 	MaxUsers    int          `json:"max_users" gorm:"default:10"`
 	MaxTasks    int          `json:"max_tasks" gorm:"default:1000"`
 	MaxStorage  int64        `json:"max_storage" gorm:"default:1073741824"` // 1GB in bytes
-	Settings    TenantSettings `json:"settings" gorm:"type:jsonb"`
+	Settings    TenantSettings `json:"settings" gorm:"type:jsonb;serializer:json"`
 	
 	// Relationships
 	Users []User `json:"users,omitempty" gorm:"foreignKey:TenantID"`
