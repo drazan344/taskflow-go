@@ -107,17 +107,6 @@ definitions:
       timezone:
         type: string
     type: object
-  models.BrandingSettings:
-    properties:
-      favicon_url:
-        type: string
-      logo_url:
-        type: string
-      primary_color:
-        type: string
-      secondary_color:
-        type: string
-    type: object
   models.Notification:
     properties:
       action_url:
@@ -189,19 +178,6 @@ definitions:
         type: string
       previous_value:
         type: string
-    type: object
-  models.NotificationSettings:
-    properties:
-      email_notifications:
-        type: boolean
-      task_assignments:
-        type: boolean
-      task_completions:
-        type: boolean
-      task_due_dates:
-        type: boolean
-      weekly_digest:
-        type: boolean
     type: object
   models.NotificationStatus:
     enum:
@@ -512,14 +488,26 @@ definitions:
     - TaskStatusCanceled
   models.Tenant:
     properties:
+      allow_registration:
+        description: Settings fields (flattened)
+        type: boolean
       created_at:
         example: "2023-01-01T00:00:00Z"
         type: string
+      default_user_role:
+        type: string
       domain:
+        type: string
+      email_notifications:
+        description: Notification settings (flattened)
+        type: boolean
+      favicon_url:
         type: string
       id:
         example: 123e4567-e89b-12d3-a456-426614174000
         format: uuid
+        type: string
+      logo_url:
         type: string
       max_storage:
         description: 1GB in bytes
@@ -532,12 +520,25 @@ definitions:
         type: string
       plan:
         $ref: '#/definitions/models.TenantPlan'
-      settings:
-        $ref: '#/definitions/models.TenantSettings'
+      primary_color:
+        description: Branding settings (flattened)
+        type: string
+      require_email_verification:
+        type: boolean
+      secondary_color:
+        type: string
       slug:
         type: string
       status:
         $ref: '#/definitions/models.TenantStatus'
+      task_assignments:
+        type: boolean
+      task_auto_assignment:
+        type: boolean
+      task_completions:
+        type: boolean
+      task_due_dates:
+        type: boolean
       tasks:
         items:
           $ref: '#/definitions/models.Task'
@@ -550,6 +551,8 @@ definitions:
         items:
           $ref: '#/definitions/models.User'
         type: array
+      weekly_digest:
+        type: boolean
     type: object
   models.TenantPlan:
     enum:
@@ -563,21 +566,6 @@ definitions:
     - TenantPlanBasic
     - TenantPlanPro
     - TenantPlanEnterprise
-  models.TenantSettings:
-    properties:
-      allow_registration:
-        type: boolean
-      branding_settings:
-        $ref: '#/definitions/models.BrandingSettings'
-      default_user_role:
-        type: string
-      notification_settings:
-        $ref: '#/definitions/models.NotificationSettings'
-      require_email_verification:
-        type: boolean
-      task_auto_assignment:
-        type: boolean
-    type: object
   models.TenantStatus:
     enum:
     - active
@@ -603,12 +591,18 @@ definitions:
         items:
           $ref: '#/definitions/models.Task'
         type: array
+      default_task_priority:
+        type: string
       email:
         type: string
       email_verified:
         type: boolean
       email_verified_at:
         type: string
+      enable_email_notifications:
+        type: boolean
+      enable_push_notifications:
+        type: boolean
       first_name:
         type: string
       id:
@@ -627,14 +621,19 @@ definitions:
         type: array
       phone:
         type: string
-      preferences:
-        allOf:
-        - $ref: '#/definitions/models.UserPreferences'
-        description: User preferences
       role:
         $ref: '#/definitions/models.UserRole'
+      show_completed_tasks:
+        type: boolean
       status:
         $ref: '#/definitions/models.UserStatus'
+      task_reminders:
+        type: boolean
+      task_view_mode:
+        description: list, board, calendar
+        type: string
+      tasks_per_page:
+        type: integer
       tenant:
         allOf:
         - $ref: '#/definitions/models.Tenant'
@@ -643,11 +642,16 @@ definitions:
         example: 123e4567-e89b-12d3-a456-426614174000
         format: uuid
         type: string
+      theme:
+        description: User preferences (flattened)
+        type: string
       timezone:
         type: string
       updated_at:
         example: "2023-01-01T00:00:00Z"
         type: string
+      weekly_digest:
+        type: boolean
     type: object
   models.UserPreferences:
     properties:
@@ -1972,6 +1976,8 @@ paths:
       summary: Get online users
       tags:
       - websocket
+schemes:
+- http
 securityDefinitions:
   BearerAuth:
     description: Enter the token with the `Bearer ` prefix, e.g. "Bearer abcde12345"

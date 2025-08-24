@@ -139,8 +139,15 @@ func SecurityHeadersMiddleware() gin.HandlerFunc {
 		// Enforce HTTPS (in production)
 		// c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		
-		// Content Security Policy (basic)
-		c.Header("Content-Security-Policy", "default-src 'self'")
+		// Content Security Policy - allow inline scripts for docs pages
+		path := c.Request.URL.Path
+		if path == "/docs/index.html" || path == "/docs/" || path == "/docs" {
+			// Relaxed CSP for documentation pages
+			c.Header("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'")
+		} else {
+			// Strict CSP for API endpoints
+			c.Header("Content-Security-Policy", "default-src 'self'")
+		}
 		
 		// Referrer Policy
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")

@@ -157,27 +157,30 @@ func (s *Service) Register(req *RegisterRequest) (*LoginResponse, error) {
 
 	// Create tenant
 	tenant := &models.Tenant{
+		BaseModel: models.BaseModel{
+			ID: uuid.New(),
+		},
 		Name:   req.TenantName,
 		Slug:   req.TenantSlug,
 		Status: models.TenantStatusActive,
 		Plan:   models.TenantPlanFree,
-		Settings: models.TenantSettings{
-			AllowRegistration:        false,
-			RequireEmailVerification: true,
-			DefaultUserRole:         string(models.UserRoleUser),
-			TaskAutoAssignment:      false,
-			NotificationSettings: models.NotificationSettings{
-				EmailNotifications: true,
-				TaskAssignments:   true,
-				TaskDueDates:      true,
-				TaskCompletions:   true,
-				WeeklyDigest:      false,
-			},
-			BrandingSettings: models.BrandingSettings{
-				PrimaryColor:   "#3B82F6",
-				SecondaryColor: "#6B7280",
-			},
-		},
+		
+		// Settings
+		AllowRegistration:        false,
+		RequireEmailVerification: true,
+		DefaultUserRole:         string(models.UserRoleUser),
+		TaskAutoAssignment:      false,
+		
+		// Notification settings
+		EmailNotifications: true,
+		TaskAssignments:   true,
+		TaskDueDates:      true,
+		TaskCompletions:   true,
+		WeeklyDigest:      false,
+		
+		// Branding settings
+		PrimaryColor:   "#3B82F6",
+		SecondaryColor: "#6B7280",
 	}
 
 	if err := tx.Create(tenant).Error; err != nil {
@@ -187,7 +190,12 @@ func (s *Service) Register(req *RegisterRequest) (*LoginResponse, error) {
 
 	// Create user
 	user := &models.User{
-		TenantModel: models.TenantModel{TenantID: tenant.ID},
+		TenantModel: models.TenantModel{
+			BaseModel: models.BaseModel{
+				ID: uuid.New(),
+			},
+			TenantID: tenant.ID,
+		},
 		Email:       req.Email,
 		FirstName:   req.FirstName,
 		LastName:    req.LastName,
@@ -195,14 +203,17 @@ func (s *Service) Register(req *RegisterRequest) (*LoginResponse, error) {
 		Status:      models.UserStatusActive,
 		Timezone:    "UTC",
 		Language:    "en",
-		Preferences: models.UserPreferences{
-			Theme:               "light",
-			EmailNotifications:  true,
-			TaskReminders:      true,
-			DefaultTaskPriority: "medium",
-			TaskViewMode:       "list",
-			TasksPerPage:       20,
-		},
+		
+		// User preferences (flattened)
+		Theme:                    "light",
+		EnableEmailNotifications: true,
+		EnablePushNotifications:  true,
+		TaskReminders:           true,
+		WeeklyDigest:            false,
+		DefaultTaskPriority:     "medium",
+		TaskViewMode:            "list",
+		ShowCompletedTasks:      false,
+		TasksPerPage:            20,
 	}
 
 	if err := user.SetPassword(req.Password); err != nil {

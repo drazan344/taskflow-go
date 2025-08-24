@@ -360,40 +360,52 @@ func (h *UserHandler) UpdateUserPreferences(c *gin.Context) {
 		return
 	}
 
-	// Update preferences
-	preferences := user.Preferences
+	// Update flattened preferences
 	if req.Theme != nil {
-		preferences.Theme = *req.Theme
+		user.Theme = *req.Theme
 	}
 	if req.EmailNotifications != nil {
-		preferences.EmailNotifications = *req.EmailNotifications
+		user.EnableEmailNotifications = *req.EmailNotifications
 	}
 	if req.PushNotifications != nil {
-		preferences.PushNotifications = *req.PushNotifications
+		user.EnablePushNotifications = *req.PushNotifications
 	}
 	if req.TaskReminders != nil {
-		preferences.TaskReminders = *req.TaskReminders
+		user.TaskReminders = *req.TaskReminders
 	}
 	if req.WeeklyDigest != nil {
-		preferences.WeeklyDigest = *req.WeeklyDigest
+		user.WeeklyDigest = *req.WeeklyDigest
 	}
 	if req.DefaultTaskPriority != nil {
-		preferences.DefaultTaskPriority = *req.DefaultTaskPriority
+		user.DefaultTaskPriority = *req.DefaultTaskPriority
 	}
 	if req.TaskViewMode != nil {
-		preferences.TaskViewMode = *req.TaskViewMode
+		user.TaskViewMode = *req.TaskViewMode
 	}
 	if req.ShowCompletedTasks != nil {
-		preferences.ShowCompletedTasks = *req.ShowCompletedTasks
+		user.ShowCompletedTasks = *req.ShowCompletedTasks
 	}
 	if req.TasksPerPage != nil {
-		preferences.TasksPerPage = *req.TasksPerPage
+		user.TasksPerPage = *req.TasksPerPage
 	}
 
-	if err := h.db.Model(&user).Update("preferences", preferences).Error; err != nil {
+	if err := h.db.Save(&user).Error; err != nil {
 		h.logger.WithError(err).Error("Failed to update user preferences")
 		response.InternalServerError(c, "Failed to update preferences")
 		return
+	}
+
+	// Create preferences response
+	preferences := gin.H{
+		"theme":                      user.Theme,
+		"enable_email_notifications": user.EnableEmailNotifications,
+		"enable_push_notifications":  user.EnablePushNotifications,
+		"task_reminders":            user.TaskReminders,
+		"weekly_digest":             user.WeeklyDigest,
+		"default_task_priority":     user.DefaultTaskPriority,
+		"task_view_mode":            user.TaskViewMode,
+		"show_completed_tasks":      user.ShowCompletedTasks,
+		"tasks_per_page":           user.TasksPerPage,
 	}
 
 	response.Success(c, preferences, "Preferences updated successfully")

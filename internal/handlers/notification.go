@@ -379,7 +379,19 @@ func (h *NotificationHandler) GetNotificationSettings(c *gin.Context) {
 		return
 	}
 
-	response.Success(c, user.Preferences)
+	// Create preferences response object
+	preferences := gin.H{
+		"theme":                      user.Theme,
+		"enable_email_notifications": user.EnableEmailNotifications,
+		"enable_push_notifications":  user.EnablePushNotifications,
+		"task_reminders":            user.TaskReminders,
+		"weekly_digest":             user.WeeklyDigest,
+		"default_task_priority":     user.DefaultTaskPriority,
+		"task_view_mode":            user.TaskViewMode,
+		"show_completed_tasks":      user.ShowCompletedTasks,
+		"tasks_per_page":           user.TasksPerPage,
+	}
+	response.Success(c, preferences)
 }
 
 // UpdateNotificationSettings updates notification settings for the current user
@@ -415,8 +427,39 @@ func (h *NotificationHandler) UpdateNotificationSettings(c *gin.Context) {
 		return
 	}
 
-	// Update preferences
-	if err := h.db.Model(&user).Update("preferences", preferences).Error; err != nil {
+	// Update individual preference fields
+	updates := make(map[string]interface{})
+	
+	if theme, ok := preferences["theme"]; ok {
+		updates["theme"] = theme
+	}
+	if emailNotifications, ok := preferences["enable_email_notifications"]; ok {
+		updates["enable_email_notifications"] = emailNotifications
+	}
+	if pushNotifications, ok := preferences["enable_push_notifications"]; ok {
+		updates["enable_push_notifications"] = pushNotifications
+	}
+	if taskReminders, ok := preferences["task_reminders"]; ok {
+		updates["task_reminders"] = taskReminders
+	}
+	if weeklyDigest, ok := preferences["weekly_digest"]; ok {
+		updates["weekly_digest"] = weeklyDigest
+	}
+	if defaultTaskPriority, ok := preferences["default_task_priority"]; ok {
+		updates["default_task_priority"] = defaultTaskPriority
+	}
+	if taskViewMode, ok := preferences["task_view_mode"]; ok {
+		updates["task_view_mode"] = taskViewMode
+	}
+	if showCompletedTasks, ok := preferences["show_completed_tasks"]; ok {
+		updates["show_completed_tasks"] = showCompletedTasks
+	}
+	if tasksPerPage, ok := preferences["tasks_per_page"]; ok {
+		updates["tasks_per_page"] = tasksPerPage
+	}
+
+	// Update user preferences
+	if err := h.db.Model(&user).Updates(updates).Error; err != nil {
 		h.logger.WithError(err).Error("Failed to update notification settings")
 		response.InternalServerError(c, "Failed to update notification settings")
 		return

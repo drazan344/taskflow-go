@@ -306,9 +306,7 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 	if req.Avatar != nil {
 		user.Avatar = *req.Avatar
 	}
-	if req.Preferences != nil {
-		user.Preferences = *req.Preferences
-	}
+	// Preferences are now flattened - handle them individually if needed
 
 	// Save updated user (this would typically go through a user service)
 	// For now, we'll just return the user

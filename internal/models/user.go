@@ -32,18 +32,26 @@ type User struct {
 	FirstName     string     `json:"first_name" gorm:"not null;size:100"`
 	LastName      string     `json:"last_name" gorm:"not null;size:100"`
 	Password      string     `json:"-" gorm:"not null;size:255"`
-	Role          UserRole   `json:"role" gorm:"not null;default:'user'"`
-	Status        UserStatus `json:"status" gorm:"default:'active'"`
+	Role          UserRole   `json:"role" gorm:"not null"`
+	Status        UserStatus `json:"status"`
 	Avatar        string     `json:"avatar,omitempty" gorm:"size:500"`
 	Phone         string     `json:"phone,omitempty" gorm:"size:20"`
-	Timezone      string     `json:"timezone" gorm:"default:'UTC';size:50"`
-	Language      string     `json:"language" gorm:"default:'en';size:10"`
+	Timezone      string     `json:"timezone" gorm:"size:50"`
+	Language      string     `json:"language" gorm:"size:10"`
 	LastLoginAt   *time.Time `json:"last_login_at,omitempty"`
-	EmailVerified bool       `json:"email_verified" gorm:"default:false"`
+	EmailVerified bool       `json:"email_verified"`
 	EmailVerifiedAt *time.Time `json:"email_verified_at,omitempty"`
 	
-	// User preferences
-	Preferences UserPreferences `json:"preferences" gorm:"type:jsonb;serializer:json"`
+	// User preferences (flattened)
+	Theme                    string `json:"theme" gorm:"size:10"` // light, dark, auto
+	EnableEmailNotifications bool   `json:"enable_email_notifications"`
+	EnablePushNotifications  bool   `json:"enable_push_notifications"`
+	TaskReminders           bool   `json:"task_reminders"`
+	WeeklyDigest            bool   `json:"weekly_digest"`
+	DefaultTaskPriority     string `json:"default_task_priority" gorm:"size:10"`
+	TaskViewMode            string `json:"task_view_mode" gorm:"size:10"` // list, board, calendar
+	ShowCompletedTasks      bool   `json:"show_completed_tasks"`
+	TasksPerPage            int    `json:"tasks_per_page"`
 	
 	// Relationships
 	Tenant          Tenant            `json:"tenant" gorm:"foreignKey:TenantID"`

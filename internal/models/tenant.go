@@ -31,12 +31,30 @@ type Tenant struct {
 	Name        string       `json:"name" gorm:"not null;size:255"`
 	Slug        string       `json:"slug" gorm:"unique;not null;size:100"`
 	Domain      string       `json:"domain,omitempty" gorm:"size:255"`
-	Status      TenantStatus `json:"status" gorm:"default:'active'"`
-	Plan        TenantPlan   `json:"plan" gorm:"default:'free'"`
+	Status      TenantStatus `json:"status"`
+	Plan        TenantPlan   `json:"plan"`
 	MaxUsers    int          `json:"max_users" gorm:"default:10"`
 	MaxTasks    int          `json:"max_tasks" gorm:"default:1000"`
 	MaxStorage  int64        `json:"max_storage" gorm:"default:1073741824"` // 1GB in bytes
-	Settings    TenantSettings `json:"settings" gorm:"type:jsonb;serializer:json"`
+	
+	// Settings fields (flattened)
+	AllowRegistration     bool   `json:"allow_registration"`
+	RequireEmailVerification bool `json:"require_email_verification"`
+	DefaultUserRole       string `json:"default_user_role" gorm:"size:20"`
+	TaskAutoAssignment    bool   `json:"task_auto_assignment"`
+	
+	// Notification settings (flattened)
+	EmailNotifications    bool `json:"email_notifications"`
+	TaskAssignments      bool `json:"task_assignments"`
+	TaskDueDates         bool `json:"task_due_dates"`
+	TaskCompletions      bool `json:"task_completions"`
+	WeeklyDigest         bool `json:"weekly_digest"`
+	
+	// Branding settings (flattened)
+	PrimaryColor   string `json:"primary_color" gorm:"size:7"`
+	SecondaryColor string `json:"secondary_color" gorm:"size:7"`
+	LogoURL        string `json:"logo_url" gorm:"size:500"`
+	FaviconURL     string `json:"favicon_url" gorm:"size:500"`
 	
 	// Relationships
 	Users []User `json:"users,omitempty" gorm:"foreignKey:TenantID"`
@@ -49,8 +67,8 @@ type TenantSettings struct {
 	RequireEmailVerification bool `json:"require_email_verification"`
 	DefaultUserRole       string `json:"default_user_role"`
 	TaskAutoAssignment    bool   `json:"task_auto_assignment"`
-	NotificationSettings  NotificationSettings `json:"notification_settings"`
-	BrandingSettings      BrandingSettings     `json:"branding_settings"`
+	NotificationSettings  NotificationSettings `json:"notification_settings" gorm:"embedded;embeddedPrefix:notif_"`
+	BrandingSettings      BrandingSettings     `json:"branding_settings" gorm:"embedded;embeddedPrefix:brand_"`
 }
 
 // NotificationSettings contains notification preferences

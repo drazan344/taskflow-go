@@ -1959,23 +1959,6 @@ const docTemplate = `{
                 }
             }
         },
-        "models.BrandingSettings": {
-            "type": "object",
-            "properties": {
-                "favicon_url": {
-                    "type": "string"
-                },
-                "logo_url": {
-                    "type": "string"
-                },
-                "primary_color": {
-                    "type": "string"
-                },
-                "secondary_color": {
-                    "type": "string"
-                }
-            }
-        },
         "models.Notification": {
             "type": "object",
             "properties": {
@@ -2080,26 +2063,6 @@ const docTemplate = `{
                 },
                 "previous_value": {
                     "type": "string"
-                }
-            }
-        },
-        "models.NotificationSettings": {
-            "type": "object",
-            "properties": {
-                "email_notifications": {
-                    "type": "boolean"
-                },
-                "task_assignments": {
-                    "type": "boolean"
-                },
-                "task_completions": {
-                    "type": "boolean"
-                },
-                "task_due_dates": {
-                    "type": "boolean"
-                },
-                "weekly_digest": {
-                    "type": "boolean"
                 }
             }
         },
@@ -2535,17 +2498,34 @@ const docTemplate = `{
         "models.Tenant": {
             "type": "object",
             "properties": {
+                "allow_registration": {
+                    "description": "Settings fields (flattened)",
+                    "type": "boolean"
+                },
                 "created_at": {
                     "type": "string",
                     "example": "2023-01-01T00:00:00Z"
                 },
+                "default_user_role": {
+                    "type": "string"
+                },
                 "domain": {
+                    "type": "string"
+                },
+                "email_notifications": {
+                    "description": "Notification settings (flattened)",
+                    "type": "boolean"
+                },
+                "favicon_url": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string",
                     "format": "uuid",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
+                },
+                "logo_url": {
+                    "type": "string"
                 },
                 "max_storage": {
                     "description": "1GB in bytes",
@@ -2563,14 +2543,33 @@ const docTemplate = `{
                 "plan": {
                     "$ref": "#/definitions/models.TenantPlan"
                 },
-                "settings": {
-                    "$ref": "#/definitions/models.TenantSettings"
+                "primary_color": {
+                    "description": "Branding settings (flattened)",
+                    "type": "string"
+                },
+                "require_email_verification": {
+                    "type": "boolean"
+                },
+                "secondary_color": {
+                    "type": "string"
                 },
                 "slug": {
                     "type": "string"
                 },
                 "status": {
                     "$ref": "#/definitions/models.TenantStatus"
+                },
+                "task_assignments": {
+                    "type": "boolean"
+                },
+                "task_auto_assignment": {
+                    "type": "boolean"
+                },
+                "task_completions": {
+                    "type": "boolean"
+                },
+                "task_due_dates": {
+                    "type": "boolean"
                 },
                 "tasks": {
                     "type": "array",
@@ -2588,6 +2587,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/models.User"
                     }
+                },
+                "weekly_digest": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2605,29 +2607,6 @@ const docTemplate = `{
                 "TenantPlanPro",
                 "TenantPlanEnterprise"
             ]
-        },
-        "models.TenantSettings": {
-            "type": "object",
-            "properties": {
-                "allow_registration": {
-                    "type": "boolean"
-                },
-                "branding_settings": {
-                    "$ref": "#/definitions/models.BrandingSettings"
-                },
-                "default_user_role": {
-                    "type": "string"
-                },
-                "notification_settings": {
-                    "$ref": "#/definitions/models.NotificationSettings"
-                },
-                "require_email_verification": {
-                    "type": "boolean"
-                },
-                "task_auto_assignment": {
-                    "type": "boolean"
-                }
-            }
         },
         "models.TenantStatus": {
             "type": "string",
@@ -2664,6 +2643,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/models.Task"
                     }
                 },
+                "default_task_priority": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -2672,6 +2654,12 @@ const docTemplate = `{
                 },
                 "email_verified_at": {
                     "type": "string"
+                },
+                "enable_email_notifications": {
+                    "type": "boolean"
+                },
+                "enable_push_notifications": {
+                    "type": "boolean"
                 },
                 "first_name": {
                     "type": "string"
@@ -2699,19 +2687,24 @@ const docTemplate = `{
                 "phone": {
                     "type": "string"
                 },
-                "preferences": {
-                    "description": "User preferences",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/models.UserPreferences"
-                        }
-                    ]
-                },
                 "role": {
                     "$ref": "#/definitions/models.UserRole"
                 },
+                "show_completed_tasks": {
+                    "type": "boolean"
+                },
                 "status": {
                     "$ref": "#/definitions/models.UserStatus"
+                },
+                "task_reminders": {
+                    "type": "boolean"
+                },
+                "task_view_mode": {
+                    "description": "list, board, calendar",
+                    "type": "string"
+                },
+                "tasks_per_page": {
+                    "type": "integer"
                 },
                 "tenant": {
                     "description": "Relationships",
@@ -2726,12 +2719,19 @@ const docTemplate = `{
                     "format": "uuid",
                     "example": "123e4567-e89b-12d3-a456-426614174000"
                 },
+                "theme": {
+                    "description": "User preferences (flattened)",
+                    "type": "string"
+                },
                 "timezone": {
                     "type": "string"
                 },
                 "updated_at": {
                     "type": "string",
                     "example": "2023-01-01T00:00:00Z"
+                },
+                "weekly_digest": {
+                    "type": "boolean"
                 }
             }
         },
@@ -2965,7 +2965,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:8080",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"http"},
 	Title:            "TaskFlow API",
 	Description:      "A multi-tenant task management platform API",
 	InfoInstanceName: "swagger",
