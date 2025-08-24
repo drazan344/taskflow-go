@@ -10,8 +10,11 @@ import (
 type NotificationType string
 
 const (
+	NotificationTypeWelcome        NotificationType = "welcome"
 	NotificationTypeTaskAssigned   NotificationType = "task_assigned"
+	NotificationTypeTaskCreated    NotificationType = "task_created"
 	NotificationTypeTaskCompleted  NotificationType = "task_completed"
+	NotificationTypeTaskUpdated    NotificationType = "task_updated"
 	NotificationTypeTaskDue        NotificationType = "task_due"
 	NotificationTypeTaskOverdue    NotificationType = "task_overdue"
 	NotificationTypeCommentAdded   NotificationType = "comment_added"

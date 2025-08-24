@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+
+	"gorm.io/gorm"
 )
 
 // Common error types
@@ -120,4 +122,22 @@ func NewValidationErrors() *ValidationErrors {
 	return &ValidationErrors{
 		Errors: make([]ValidationError, 0),
 	}
+}
+
+// HandleDBError converts GORM errors to appropriate AppErrors
+func HandleDBError(err error, resourceName string) *AppError {
+	if err == nil {
+		return nil
+	}
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return NotFound(fmt.Sprintf("%s not found", resourceName), err)
+	}
+
+	if errors.Is(err, gorm.ErrDuplicatedKey) {
+		return Conflict(fmt.Sprintf("%s already exists", resourceName), err)
+	}
+
+	// For other database errors, return a generic internal error
+	return InternalServer("Database operation failed", err)
 }

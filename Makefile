@@ -1,4 +1,4 @@
-.PHONY: build run test clean docker-build docker-run migrate-up migrate-down swagger
+.PHONY: build run test test-unit test-integration test-e2e test-coverage test-benchmark clean docker-build docker-run migrate-up migrate-down swagger fmt lint deps init
 
 # Build the application
 build:
@@ -16,16 +16,37 @@ run-worker:
 	@echo "Running worker..."
 	@go run cmd/worker/main.go
 
-# Run tests
+# Run all tests
 test:
-	@echo "Running tests..."
-	@go test -v -race ./...
+	@echo "Running all tests..."
+	@go test -v -race ./tests/unit/... ./tests/integration/...
+
+# Run unit tests only
+test-unit:
+	@echo "Running unit tests..."
+	@go test -v ./tests/unit/...
+
+# Run integration tests only
+test-integration:
+	@echo "Running integration tests..."
+	@go test -v ./tests/integration/...
+
+# Run E2E tests (requires running server)
+test-e2e:
+	@echo "Running E2E tests..."
+	@echo "Make sure the server is running on localhost:8080"
+	@go test -v ./tests/api/...
 
 # Run tests with coverage
 test-coverage:
 	@echo "Running tests with coverage..."
-	@go test -v -race -coverprofile=coverage.out ./...
+	@go test -v -race -coverprofile=coverage.out ./tests/unit/... ./tests/integration/...
 	@go tool cover -html=coverage.out -o coverage.html
+
+# Run benchmark tests
+test-benchmark:
+	@echo "Running benchmark tests..."
+	@go test -bench=. -benchmem ./tests/...
 
 # Clean build artifacts
 clean:

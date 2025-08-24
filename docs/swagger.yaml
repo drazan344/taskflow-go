@@ -1,0 +1,1981 @@
+basePath: /api/v1
+definitions:
+  auth.LoginResponse:
+    properties:
+      access_token:
+        type: string
+      expires_at:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+    type: object
+  handlers.ChangePasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      current_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+    required:
+    - confirm_password
+    - current_password
+    - new_password
+    type: object
+  handlers.ForgotPasswordRequest:
+    properties:
+      email:
+        type: string
+    required:
+    - email
+    type: object
+  handlers.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  handlers.RefreshTokenRequest:
+    properties:
+      refresh_token:
+        type: string
+    required:
+    - refresh_token
+    type: object
+  handlers.RegisterRequest:
+    properties:
+      email:
+        type: string
+      first_name:
+        minLength: 2
+        type: string
+      last_name:
+        minLength: 2
+        type: string
+      password:
+        minLength: 6
+        type: string
+      tenant_name:
+        minLength: 2
+        type: string
+      tenant_slug:
+        minLength: 2
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    - tenant_name
+    - tenant_slug
+    type: object
+  handlers.ResetPasswordRequest:
+    properties:
+      confirm_password:
+        type: string
+      new_password:
+        minLength: 6
+        type: string
+      token:
+        type: string
+    required:
+    - confirm_password
+    - new_password
+    - token
+    type: object
+  handlers.UpdateProfileRequest:
+    properties:
+      avatar:
+        type: string
+      first_name:
+        type: string
+      language:
+        type: string
+      last_name:
+        type: string
+      phone:
+        type: string
+      preferences:
+        $ref: '#/definitions/models.UserPreferences'
+      timezone:
+        type: string
+    type: object
+  models.BrandingSettings:
+    properties:
+      favicon_url:
+        type: string
+      logo_url:
+        type: string
+      primary_color:
+        type: string
+      secondary_color:
+        type: string
+    type: object
+  models.Notification:
+    properties:
+      action_url:
+        type: string
+      archived_at:
+        type: string
+      comment:
+        $ref: '#/definitions/models.TaskComment'
+      comment_id:
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      data:
+        $ref: '#/definitions/models.NotificationData'
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      message:
+        type: string
+      project:
+        $ref: '#/definitions/models.Project'
+      project_id:
+        type: string
+      read_at:
+        type: string
+      status:
+        $ref: '#/definitions/models.NotificationStatus'
+      task:
+        $ref: '#/definitions/models.Task'
+      task_id:
+        description: Related entity references
+        type: string
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/models.NotificationType'
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        allOf:
+        - $ref: '#/definitions/models.User'
+        description: Relationships
+      user_id:
+        type: string
+    type: object
+  models.NotificationData:
+    properties:
+      actor_id:
+        type: string
+      actor_name:
+        type: string
+      entity_id:
+        type: string
+      entity_name:
+        type: string
+      entity_type:
+        type: string
+      extra_data:
+        additionalProperties: true
+        type: object
+      new_value:
+        type: string
+      previous_value:
+        type: string
+    type: object
+  models.NotificationSettings:
+    properties:
+      email_notifications:
+        type: boolean
+      task_assignments:
+        type: boolean
+      task_completions:
+        type: boolean
+      task_due_dates:
+        type: boolean
+      weekly_digest:
+        type: boolean
+    type: object
+  models.NotificationStatus:
+    enum:
+    - unread
+    - read
+    - archived
+    type: string
+    x-enum-varnames:
+    - NotificationStatusUnread
+    - NotificationStatusRead
+    - NotificationStatusArchived
+  models.NotificationType:
+    enum:
+    - welcome
+    - task_assigned
+    - task_created
+    - task_completed
+    - task_updated
+    - task_due
+    - task_overdue
+    - comment_added
+    - user_invited
+    - user_joined
+    - project_created
+    - system_update
+    type: string
+    x-enum-varnames:
+    - NotificationTypeWelcome
+    - NotificationTypeTaskAssigned
+    - NotificationTypeTaskCreated
+    - NotificationTypeTaskCompleted
+    - NotificationTypeTaskUpdated
+    - NotificationTypeTaskDue
+    - NotificationTypeTaskOverdue
+    - NotificationTypeCommentAdded
+    - NotificationTypeUserInvited
+    - NotificationTypeUserJoined
+    - NotificationTypeProjectCreated
+    - NotificationTypeSystemUpdate
+  models.Project:
+    properties:
+      color:
+        description: Hex color code
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      is_active:
+        type: boolean
+      name:
+        type: string
+      start_date:
+        type: string
+      tasks:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.Tag:
+    properties:
+      color:
+        description: Hex color code
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      name:
+        type: string
+      tasks:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.Task:
+    properties:
+      activities:
+        items:
+          $ref: '#/definitions/models.TaskActivity'
+        type: array
+      actual_hours:
+        type: number
+      assignee:
+        $ref: '#/definitions/models.User'
+      assignee_id:
+        type: string
+      attachments:
+        items:
+          $ref: '#/definitions/models.TaskAttachment'
+        type: array
+      comments:
+        items:
+          $ref: '#/definitions/models.TaskComment'
+        type: array
+      completed_at:
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      creator:
+        $ref: '#/definitions/models.User'
+      creator_id:
+        description: Relationships
+        type: string
+      description:
+        type: string
+      due_date:
+        type: string
+      estimated_hours:
+        type: number
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      parent:
+        $ref: '#/definitions/models.Task'
+      parent_id:
+        type: string
+      priority:
+        $ref: '#/definitions/models.TaskPriority'
+      project:
+        $ref: '#/definitions/models.Project'
+      project_id:
+        type: string
+      status:
+        $ref: '#/definitions/models.TaskStatus'
+      subtasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      tags:
+        items:
+          $ref: '#/definitions/models.Tag'
+        type: array
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      title:
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.TaskActivity:
+    properties:
+      action:
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      description:
+        type: string
+      field:
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      new_value:
+        type: string
+      old_value:
+        type: string
+      task:
+        allOf:
+        - $ref: '#/definitions/models.Task'
+        description: Relationships
+      task_id:
+        type: string
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+    type: object
+  models.TaskAttachment:
+    properties:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      file_name:
+        type: string
+      file_path:
+        type: string
+      file_size:
+        type: integer
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      mime_type:
+        type: string
+      original_name:
+        type: string
+      task:
+        allOf:
+        - $ref: '#/definitions/models.Task'
+        description: Relationships
+      task_id:
+        type: string
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+    type: object
+  models.TaskComment:
+    properties:
+      content:
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      parent:
+        $ref: '#/definitions/models.TaskComment'
+      parent_id:
+        type: string
+      replies:
+        items:
+          $ref: '#/definitions/models.TaskComment'
+        type: array
+      task:
+        allOf:
+        - $ref: '#/definitions/models.Task'
+        description: Relationships
+      task_id:
+        type: string
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      user:
+        $ref: '#/definitions/models.User'
+      user_id:
+        type: string
+    type: object
+  models.TaskPriority:
+    enum:
+    - low
+    - medium
+    - high
+    - urgent
+    type: string
+    x-enum-varnames:
+    - TaskPriorityLow
+    - TaskPriorityMedium
+    - TaskPriorityHigh
+    - TaskPriorityUrgent
+  models.TaskStatus:
+    enum:
+    - todo
+    - in_progress
+    - in_review
+    - completed
+    - canceled
+    type: string
+    x-enum-varnames:
+    - TaskStatusTodo
+    - TaskStatusInProgress
+    - TaskStatusInReview
+    - TaskStatusCompleted
+    - TaskStatusCanceled
+  models.Tenant:
+    properties:
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      domain:
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      max_storage:
+        description: 1GB in bytes
+        type: integer
+      max_tasks:
+        type: integer
+      max_users:
+        type: integer
+      name:
+        type: string
+      plan:
+        $ref: '#/definitions/models.TenantPlan'
+      settings:
+        $ref: '#/definitions/models.TenantSettings'
+      slug:
+        type: string
+      status:
+        $ref: '#/definitions/models.TenantStatus'
+      tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      users:
+        description: Relationships
+        items:
+          $ref: '#/definitions/models.User'
+        type: array
+    type: object
+  models.TenantPlan:
+    enum:
+    - free
+    - basic
+    - pro
+    - enterprise
+    type: string
+    x-enum-varnames:
+    - TenantPlanFree
+    - TenantPlanBasic
+    - TenantPlanPro
+    - TenantPlanEnterprise
+  models.TenantSettings:
+    properties:
+      allow_registration:
+        type: boolean
+      branding_settings:
+        $ref: '#/definitions/models.BrandingSettings'
+      default_user_role:
+        type: string
+      notification_settings:
+        $ref: '#/definitions/models.NotificationSettings'
+      require_email_verification:
+        type: boolean
+      task_auto_assignment:
+        type: boolean
+    type: object
+  models.TenantStatus:
+    enum:
+    - active
+    - suspended
+    - canceled
+    type: string
+    x-enum-varnames:
+    - TenantStatusActive
+    - TenantStatusSuspended
+    - TenantStatusCanceled
+  models.User:
+    properties:
+      assigned_tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      avatar:
+        type: string
+      created_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+      created_tasks:
+        items:
+          $ref: '#/definitions/models.Task'
+        type: array
+      email:
+        type: string
+      email_verified:
+        type: boolean
+      email_verified_at:
+        type: string
+      first_name:
+        type: string
+      id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      language:
+        type: string
+      last_login_at:
+        type: string
+      last_name:
+        type: string
+      notifications:
+        items:
+          $ref: '#/definitions/models.Notification'
+        type: array
+      phone:
+        type: string
+      preferences:
+        allOf:
+        - $ref: '#/definitions/models.UserPreferences'
+        description: User preferences
+      role:
+        $ref: '#/definitions/models.UserRole'
+      status:
+        $ref: '#/definitions/models.UserStatus'
+      tenant:
+        allOf:
+        - $ref: '#/definitions/models.Tenant'
+        description: Relationships
+      tenant_id:
+        example: 123e4567-e89b-12d3-a456-426614174000
+        format: uuid
+        type: string
+      timezone:
+        type: string
+      updated_at:
+        example: "2023-01-01T00:00:00Z"
+        type: string
+    type: object
+  models.UserPreferences:
+    properties:
+      default_task_priority:
+        type: string
+      email_notifications:
+        type: boolean
+      push_notifications:
+        type: boolean
+      show_completed_tasks:
+        type: boolean
+      task_reminders:
+        type: boolean
+      task_view_mode:
+        description: list, board, calendar
+        type: string
+      tasks_per_page:
+        type: integer
+      theme:
+        description: light, dark, auto
+        type: string
+      weekly_digest:
+        type: boolean
+    type: object
+  models.UserRole:
+    enum:
+    - admin
+    - manager
+    - user
+    type: string
+    x-enum-varnames:
+    - UserRoleAdmin
+    - UserRoleManager
+    - UserRoleUser
+  models.UserStatus:
+    enum:
+    - active
+    - inactive
+    - suspended
+    type: string
+    x-enum-varnames:
+    - UserStatusActive
+    - UserStatusInactive
+    - UserStatusSuspended
+  requests.ChangePasswordRequest:
+    properties:
+      current_password:
+        type: string
+      new_password:
+        type: string
+    required:
+    - current_password
+    - new_password
+    type: object
+  requests.CreateTaskRequest:
+    properties:
+      assignee_id:
+        type: string
+      description:
+        maxLength: 2000
+        type: string
+      due_date:
+        type: string
+      estimated_hours:
+        maximum: 9999
+        minimum: 0
+        type: number
+      parent_id:
+        type: string
+      priority:
+        $ref: '#/definitions/models.TaskPriority'
+      project_id:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      title:
+        maxLength: 200
+        minLength: 1
+        type: string
+    required:
+    - priority
+    - title
+    type: object
+  requests.UpdateUserPreferencesRequest:
+    properties:
+      default_task_priority:
+        enum:
+        - low
+        - medium
+        - high
+        - urgent
+        type: string
+      email_notifications:
+        type: boolean
+      push_notifications:
+        type: boolean
+      show_completed_tasks:
+        type: boolean
+      task_reminders:
+        type: boolean
+      task_view_mode:
+        enum:
+        - list
+        - board
+        - calendar
+        type: string
+      tasks_per_page:
+        maximum: 100
+        minimum: 5
+        type: integer
+      theme:
+        enum:
+        - light
+        - dark
+        - auto
+        type: string
+      weekly_digest:
+        type: boolean
+    type: object
+  response.APIResponse:
+    properties:
+      data: {}
+      error: {}
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+  response.PaginationMeta:
+    properties:
+      page:
+        type: integer
+      per_page:
+        type: integer
+      total:
+        type: integer
+      total_pages:
+        type: integer
+    type: object
+  response.PaginationResponse:
+    properties:
+      data: {}
+      message:
+        type: string
+      pagination:
+        $ref: '#/definitions/response.PaginationMeta'
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@taskflow.com
+    name: API Support
+    url: http://www.taskflow.com/support
+  description: A multi-tenant task management platform API
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: TaskFlow API
+  version: "1.0"
+paths:
+  /auth/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change the current user's password
+      parameters:
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Change user password
+      tags:
+      - auth
+  /auth/forgot-password:
+    post:
+      consumes:
+      - application/json
+      description: Send password reset email to user
+      parameters:
+      - description: Email address
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ForgotPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Request password reset
+      tags:
+      - auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticate user with email and password
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Authenticate user
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      description: Invalidate user session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Logout user
+      tags:
+      - auth
+  /auth/me:
+    get:
+      description: Get information about the currently authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current user
+      tags:
+      - auth
+    put:
+      consumes:
+      - application/json
+      description: Update the current user's profile information
+      parameters:
+      - description: Profile update data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.UpdateProfileRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user profile
+      tags:
+      - auth
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      description: Get new access and refresh tokens using refresh token
+      parameters:
+      - description: Refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RefreshTokenRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Refresh access token
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Create a new user account and associated tenant
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "409":
+          description: Conflict
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Register a new user and tenant
+      tags:
+      - auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Reset user password using reset token
+      parameters:
+      - description: Reset password data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.ResetPasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Reset password with token
+      tags:
+      - auth
+  /notifications:
+    get:
+      description: Get a paginated list of notifications for the current user
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      - description: Filter by read/unread status
+        in: query
+        name: status
+        type: string
+      - description: Filter by notification type
+        in: query
+        name: type
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.PaginationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: List notifications
+      tags:
+      - notifications
+  /notifications/{id}:
+    delete:
+      description: Delete a specific notification
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete notification
+      tags:
+      - notifications
+    get:
+      description: Get a specific notification by ID
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Notification'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get notification
+      tags:
+      - notifications
+  /notifications/{id}/read:
+    put:
+      description: Mark a specific notification as read
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark notification as read
+      tags:
+      - notifications
+  /notifications/{id}/unread:
+    put:
+      description: Mark a specific notification as unread
+      parameters:
+      - description: Notification ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark notification as unread
+      tags:
+      - notifications
+  /notifications/mark-all-read:
+    put:
+      description: Mark all notifications as read for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+  /notifications/settings:
+    get:
+      description: Get notification preferences for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get notification settings
+      tags:
+      - notifications
+    put:
+      consumes:
+      - application/json
+      description: Update notification preferences for the current user
+      parameters:
+      - description: Notification preferences
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update notification settings
+      tags:
+      - notifications
+  /notifications/unread-count:
+    get:
+      description: Get the count of unread notifications for the current user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get unread notification count
+      tags:
+      - notifications
+  /tasks:
+    get:
+      description: Get a paginated list of tasks in the current tenant
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      - description: Filter by status
+        in: query
+        name: status
+        type: string
+      - description: Filter by assignee ID
+        in: query
+        name: assignee_id
+        type: string
+      - description: Filter by project ID
+        in: query
+        name: project_id
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List tasks
+      tags:
+      - tasks
+    post:
+      consumes:
+      - application/json
+      description: Create a new task in the current tenant
+      parameters:
+      - description: Task creation data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.CreateTaskRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Create task
+      tags:
+      - tasks
+  /tasks/{id}:
+    delete:
+      description: Soft delete a task
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete task
+      tags:
+      - tasks
+    get:
+      description: Get a specific task by ID within the current tenant
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get task
+      tags:
+      - tasks
+    put:
+      consumes:
+      - application/json
+      description: Update a task's information
+      parameters:
+      - description: Task ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Task update data
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Task'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update task
+      tags:
+      - tasks
+  /tenant:
+    get:
+      description: Get information about the current tenant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Tenant'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get current tenant
+      tags:
+      - tenant
+    put:
+      consumes:
+      - application/json
+      description: Update the current tenant's information (admin only)
+      parameters:
+      - description: Tenant update data
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Tenant'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update tenant
+      tags:
+      - tenant
+  /users:
+    get:
+      description: Get a paginated list of users in the current tenant
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 20
+        description: Items per page
+        in: query
+        name: per_page
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: List users
+      tags:
+      - users
+  /users/{id}:
+    delete:
+      description: Soft delete a user (requires admin role)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Delete user
+      tags:
+      - users
+    get:
+      description: Get a specific user by ID within the current tenant
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get user
+      tags:
+      - users
+    put:
+      consumes:
+      - application/json
+      description: Update a user's information (requires admin or manager role)
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User update data
+        in: body
+        name: request
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+        "403":
+          description: Forbidden
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Update user
+      tags:
+      - users
+  /users/{id}/stats:
+    get:
+      description: Get statistics for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Get user statistics
+      tags:
+      - users
+  /users/change-password:
+    post:
+      consumes:
+      - application/json
+      description: Change password for the current user
+      parameters:
+      - description: Password change data
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.ChangePasswordRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Change password
+      tags:
+      - users
+  /users/preferences:
+    put:
+      consumes:
+      - application/json
+      description: Update preferences for the current user
+      parameters:
+      - description: User preferences
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/requests.UpdateUserPreferencesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.APIResponse'
+      security:
+      - BearerAuth: []
+      summary: Update user preferences
+      tags:
+      - users
+  /ws:
+    get:
+      description: Establish WebSocket connection for real-time updates
+      responses: {}
+      security:
+      - BearerAuth: []
+      summary: WebSocket connection
+      tags:
+      - websocket
+  /ws/online-users:
+    get:
+      description: Get list of users currently online in the tenant
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get online users
+      tags:
+      - websocket
+securityDefinitions:
+  BearerAuth:
+    description: Enter the token with the `Bearer ` prefix, e.g. "Bearer abcde12345"
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

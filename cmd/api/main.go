@@ -14,6 +14,7 @@ import (
 	"github.com/drazan344/taskflow-go/internal/config"
 	"github.com/drazan344/taskflow-go/internal/database"
 	"github.com/drazan344/taskflow-go/internal/handlers"
+	"github.com/drazan344/taskflow-go/internal/jobs"
 	"github.com/drazan344/taskflow-go/internal/middleware"
 	"github.com/drazan344/taskflow-go/internal/models"
 	"github.com/drazan344/taskflow-go/internal/websocket"
@@ -78,6 +79,10 @@ func main() {
 	jwtService := auth.NewJWTService(cfg)
 	authService := auth.NewService(db.DB, cfg)
 
+	// Initialize background job client
+	jobClient := jobs.NewClient(cfg.GetRedisAddr())
+	defer jobClient.Close()
+
 	// Initialize WebSocket hub
 	wsHub := websocket.NewHub(logger)
 	go wsHub.Run() // Start the hub in a separate goroutine
@@ -87,10 +92,20 @@ func main() {
 	userHandler := handlers.NewUserHandler(db.DB, logger)
 	taskHandler := handlers.NewTaskHandler(db.DB, logger)
 	tenantHandler := handlers.NewTenantHandler(db.DB, logger)
+	notificationHandler := handlers.NewNotificationHandler(db.DB, logger)
 	wsHandler := handlers.NewWebSocketHandler(wsHub, logger)
 
+	// Initialize background job server
+	jobServer := jobs.NewServer(cfg, db.DB, logger.Logger)
+	go func() {
+		logger.Info("Starting background job server...")
+		if err := jobServer.Start(); err != nil {
+			logger.WithError(err).Fatal("Background job server failed")
+		}
+	}()
+
 	// Setup routes
-	router := setupRoutes(cfg, db, redis, jwtService, authHandler, userHandler, taskHandler, tenantHandler, wsHandler, logger)
+	router := setupRoutes(cfg, db, redis, jwtService, authHandler, userHandler, taskHandler, tenantHandler, notificationHandler, wsHandler, logger)
 
 	// Create HTTP server
 	server := &http.Server{
@@ -113,6 +128,9 @@ func main() {
 
 	logger.Info("Shutting down server...")
 
+	// Shutdown background job server
+	jobServer.Shutdown()
+
 	// Give outstanding requests 30 seconds to complete
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
@@ -133,6 +151,7 @@ func setupRoutes(
 	userHandler *handlers.UserHandler,
 	taskHandler *handlers.TaskHandler,
 	tenantHandler *handlers.TenantHandler,
+	notificationHandler *handlers.NotificationHandler,
 	wsHandler *handlers.WebSocketHandler,
 	logger *logger.Logger,
 ) *gin.Engine {
@@ -224,9 +243,12 @@ func setupRoutes(
 		users := protected.Group("/users")
 		{
 			users.GET("", userHandler.ListUsers)
+			users.PUT("/preferences", userHandler.UpdateUserPreferences)
+			users.POST("/change-password", userHandler.ChangePassword)
 			users.GET("/:id", userHandler.GetUser)
 			users.PUT("/:id", middleware.RequireManagerOrAdmin(), userHandler.UpdateUser)
 			users.DELETE("/:id", middleware.RequireAdmin(), userHandler.DeleteUser)
+			users.GET("/:id/stats", userHandler.GetUserStats)
 		}
 
 		// Task management
@@ -277,6 +299,20 @@ func setupRoutes(
 			tenant.GET("/analytics", tenantHandler.GetAnalytics)
 		}
 
+		// Notification management
+		notifications := protected.Group("/notifications")
+		{
+			notifications.GET("", notificationHandler.ListNotifications)
+			notifications.GET("/unread-count", notificationHandler.GetUnreadCount)
+			notifications.PUT("/mark-all-read", notificationHandler.MarkAllAsRead)
+			notifications.GET("/settings", notificationHandler.GetNotificationSettings)
+			notifications.PUT("/settings", notificationHandler.UpdateNotificationSettings)
+			notifications.GET("/:id", notificationHandler.GetNotification)
+			notifications.PUT("/:id/read", notificationHandler.MarkAsRead)
+			notifications.PUT("/:id/unread", notificationHandler.MarkAsUnread)
+			notifications.DELETE("/:id", notificationHandler.DeleteNotification)
+		}
+
 		// WebSocket routes
 		ws := protected.Group("/ws")
 		{
@@ -299,7 +335,13 @@ func runMigrations(db *database.DB) error {
 		&models.Tenant{},
 		&models.User{},
 		&models.UserSession{},
+		&models.Project{},
+		&models.Tag{},
 		&models.Task{},
+		&models.TaskComment{},
+		&models.TaskAttachment{},
+		&models.Notification{},
+		&models.TenantInvitation{},
 	}
 
 	return db.Migrate(models...)

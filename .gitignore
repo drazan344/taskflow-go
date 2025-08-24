@@ -27,6 +27,8 @@ go.work
 *.swp
 *.swo
 .claude
+STUDY_GUIDE.md
+test_api.md
 
 # OS generated files
 .DS_Store

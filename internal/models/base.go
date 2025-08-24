@@ -9,16 +9,16 @@ import (
 
 // BaseModel contains common columns for all models
 type BaseModel struct {
-	ID        uuid.UUID      `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()"`
-	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt time.Time      `json:"updated_at" gorm:"autoUpdateTime"`
-	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index"`
+	ID        uuid.UUID      `json:"id" gorm:"type:uuid;primary_key;default:gen_random_uuid()" swaggertype:"string" format:"uuid" example:"123e4567-e89b-12d3-a456-426614174000"`
+	CreatedAt time.Time      `json:"created_at" gorm:"autoCreateTime" example:"2023-01-01T00:00:00Z"`
+	UpdatedAt time.Time      `json:"updated_at" gorm:"autoUpdateTime" example:"2023-01-01T00:00:00Z"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at,omitempty" gorm:"index" swaggerignore:"true"`
 }
 
 // TenantModel contains common columns for tenant-scoped models
 type TenantModel struct {
 	BaseModel
-	TenantID uuid.UUID `json:"tenant_id" gorm:"type:uuid;not null;index"`
+	TenantID uuid.UUID `json:"tenant_id" gorm:"type:uuid;not null;index" swaggertype:"string" format:"uuid" example:"123e4567-e89b-12d3-a456-426614174000"`
 }
 
 // BeforeCreate hook for BaseModel to generate UUID

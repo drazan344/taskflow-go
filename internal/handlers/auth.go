@@ -82,7 +82,7 @@ type UpdateProfileRequest struct {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body RegisterRequest true "Registration details"
+// @Param request body handlers.RegisterRequest true "Registration details"
 // @Success 201 {object} auth.LoginResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 409 {object} map[string]interface{}
@@ -130,7 +130,7 @@ func (h *AuthHandler) Register(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body LoginRequest true "Login credentials"
+// @Param request body handlers.LoginRequest true "Login credentials"
 // @Success 200 {object} auth.LoginResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
@@ -178,7 +178,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body RefreshTokenRequest true "Refresh token"
+// @Param request body handlers.RefreshTokenRequest true "Refresh token"
 // @Success 200 {object} auth.LoginResponse
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
@@ -267,7 +267,7 @@ func (h *AuthHandler) GetCurrentUser(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body UpdateProfileRequest true "Profile update data"
+// @Param request body handlers.UpdateProfileRequest true "Profile update data"
 // @Success 200 {object} models.User
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
@@ -324,7 +324,7 @@ func (h *AuthHandler) UpdateProfile(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param request body ChangePasswordRequest true "Password change data"
+// @Param request body handlers.ChangePasswordRequest true "Password change data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 401 {object} map[string]interface{}
@@ -375,7 +375,7 @@ func (h *AuthHandler) ChangePassword(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body ForgotPasswordRequest true "Email address"
+// @Param request body handlers.ForgotPasswordRequest true "Email address"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
@@ -411,7 +411,7 @@ func (h *AuthHandler) ForgotPassword(c *gin.Context) {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param request body ResetPasswordRequest true "Reset password data"
+// @Param request body handlers.ResetPasswordRequest true "Reset password data"
 // @Success 200 {object} map[string]interface{}
 // @Failure 400 {object} map[string]interface{}
 // @Failure 500 {object} map[string]interface{}
