@@ -3,8 +3,6 @@ package handlers
 import (
 	"time"
 
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/drazan344/taskflow-go/internal/middleware"
 	"github.com/drazan344/taskflow-go/internal/models"
 	"github.com/drazan344/taskflow-go/internal/requests"
@@ -12,6 +10,8 @@ import (
 	"github.com/drazan344/taskflow-go/pkg/logger"
 	"github.com/drazan344/taskflow-go/pkg/response"
 	"github.com/drazan344/taskflow-go/pkg/validator"
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -71,9 +71,10 @@ func (h *NotificationHandler) ListNotifications(c *gin.Context) {
 
 	// Apply filters
 	if status := c.Query("status"); status != "" {
-		if status == "read" {
+		switch status {
+		case "read":
 			query = query.Where("read_at IS NOT NULL")
-		} else if status == "unread" {
+		case "unread":
 			query = query.Where("read_at IS NULL")
 		}
 	}

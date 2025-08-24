@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-	"time"
+
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,6 @@ import (
 
 	"github.com/drazan344/taskflow-go/internal/auth"
 	"github.com/drazan344/taskflow-go/internal/config"
-	"github.com/drazan344/taskflow-go/internal/database"
 	"github.com/drazan344/taskflow-go/internal/handlers"
 	"github.com/drazan344/taskflow-go/internal/middleware"
 	"github.com/drazan344/taskflow-go/pkg/logger"
